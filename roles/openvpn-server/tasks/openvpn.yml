@@ -1,0 +1,31 @@
+---
+- name: Install OpenVPN
+  yum:
+    name:
+      - openvpn
+
+- name: Generate OpenVPN static key
+  shell: >-
+    cd /etc/openvpn
+    && umask 0077
+    && openvpn --genkey --secret static.key
+  args:
+    creates: /etc/openvpn/static.key
+
+- name: Set ownership and mode of the OpenVPN static key
+  file:
+    name: '/etc/openvpn/me.conf'
+    owner: root
+    group: root
+    mode: 0600
+
+- name: Configure OpenVPN
+  copy:
+    src: 'openvpn/me.conf'
+    dest: '/etc/openvpn/me.conf'
+  notify: openvpn-restart
+
+- name: Enable OpenVPN
+  service:
+    name: openvpn@me
+    enabled: true

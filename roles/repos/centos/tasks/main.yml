@@ -1,0 +1,23 @@
+---
+- name: Test that centos-release has been installed
+  shell: 'rpm -q centos-release'
+  args:
+    warn: no
+  changed_when: no
+
+- name: Test for CentOS rpmkeys
+  shell: 'rpm -q gpg-pubkey-f4a80eb5-53a7ff4b'
+  args:
+    warn: no
+  changed_when: no
+  ignore_errors: yes
+  register: centos_rpmkeys
+
+- name: Install CentOS rpmkeys
+  shell: >-
+    package='centos-release'
+    && key='/etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7'
+    && [[ "$(rpm -qf --queryformat='%{NAME}\n' "${key}")" = "${package}" ]]
+    && rpm -qV "${package}" | awk -v key="${key}" '$NF == key { exit 1 }'
+    && rpmkeys --import "${key}"
+  when: centos_rpmkeys|failed

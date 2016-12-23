@@ -1,0 +1,6 @@
+---
+dependencies:
+  - role: repos/centos
+    when: "ansible_distribution == 'CentOS'"
+  - role: repos/epel
+    when: "ansible_distribution == 'CentOS'"

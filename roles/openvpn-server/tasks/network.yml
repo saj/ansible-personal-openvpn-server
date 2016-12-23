@@ -1,0 +1,36 @@
+---
+- name: Install network debugging tools
+  yum:
+    name:
+      - socat
+      - tcpdump
+      - whois
+
+- name: Disable firewalld
+  service:
+    name: firewalld
+    enabled: false
+
+- name: Install iptables-services
+  yum:
+    name: iptables-services
+
+- name: Configure iptables
+  copy:
+    src: 'iptables/iptables'
+    dest: '/etc/sysconfig/iptables'
+
+- name: Configure ip6tables
+  copy:
+    src: 'iptables/ip6tables'
+    dest: '/etc/sysconfig/ip6tables'
+
+- name: Enable iptables-services
+  service:
+    name: iptables
+    enabled: true
+
+- name: Enable IPv4 packet forwarding
+  copy:
+    src: 'sysctl.d/10-ip-forwarding.conf'
+    dest: '/etc/sysctl.d/10-ip-forwarding.conf'
